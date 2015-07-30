@@ -53,7 +53,7 @@ class AbstractUserRegistrationSerializer(serializers.ModelSerializer):
         )
     def __init__(self, *args, **kwargs):
         super(AbstractUserRegistrationSerializer, self).__init__(*args, **kwargs)
-        self.fields['email'] = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())], message="Email already exists!")
+        self.fields['email'] = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
 
 if version.StrictVersion(rest_framework.VERSION) >= version.StrictVersion('3.0.0'):
 
