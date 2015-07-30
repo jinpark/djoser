@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 import rest_framework
 from rest_framework.authtoken.models import Token
+from rest_framework.validators import UniqueValidator
 from . import constants, utils
 
 User = get_user_model()
@@ -50,10 +51,21 @@ class AbstractUserRegistrationSerializer(serializers.ModelSerializer):
         write_only_fields = (
             'password',
         )
+    def __init__(self, *args, **kwargs):
+        super(AbstractUserRegistrationSerializer, self).__init__(*args, **kwargs)
+        self.fields['email'] = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())], message="Email already exists!")
 
 if version.StrictVersion(rest_framework.VERSION) >= version.StrictVersion('3.0.0'):
 
     class UserRegistrationSerializer(AbstractUserRegistrationSerializer):
+
+        def validate(self, data):
+            """
+            Check that email exists.
+            """
+            if not 'email' in data:
+                raise serializers.ValidationError("Email does not exist")
+            return data
 
         def create(self, validated_data):
             return User.objects.create_user(**validated_data)
